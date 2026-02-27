@@ -58,6 +58,9 @@ type Client struct {
 }
 
 func (obj *Client) run() {
+	interval := time.Second * 30
+	timer := time.NewTimer(interval)
+	defer timer.Stop()
 	for {
 		select {
 		case <-obj.ctx.Done():
@@ -70,10 +73,11 @@ func (obj *Client) run() {
 				}
 				return true
 			})
+			timer.Reset(interval)
 			select {
 			case <-obj.ctx.Done():
 				return
-			case <-time.After(time.Second * 30):
+			case <-timer.C:
 			}
 		}
 	}
