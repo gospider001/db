@@ -12,6 +12,6 @@ require (
 	github.com/klauspost/compress v1.18.6 // indirect
 	github.com/minio/minlz v1.1.1 // indirect
 	golang.org/x/image v0.42.0 // indirect
-	golang.org/x/net v0.55.0 // indirect
+	golang.org/x/net v0.56.0 // indirect
 	golang.org/x/text v0.38.0 // indirect
 )
