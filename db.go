@@ -6,6 +6,7 @@ import (
 	"embed"
 	"encoding/gob"
 	"os"
+	"reflect"
 	"sync"
 	"time"
 
@@ -18,12 +19,12 @@ type ClientOption struct {
 	FS  *embed.FS
 }
 
-func NewClient(ctx context.Context, option ClientOption) (*Client, error) {
+func NewClient[T any](ctx context.Context, option ClientOption) (*Client[T], error) {
 	if ctx == nil {
 		ctx = context.TODO()
 	}
 	context, cancel := context.WithCancel(ctx)
-	client := &Client{
+	client := &Client[T]{
 		ttl: option.TTL,
 		ctx: context,
 		cnl: cancel,
@@ -43,12 +44,12 @@ func NewClient(ctx context.Context, option ClientOption) (*Client, error) {
 	return client, nil
 }
 
-type rawData struct {
-	data []byte
+type rawData[T any] struct {
+	data T
 	time time.Time
 	ttl  time.Duration
 }
-type Client struct {
+type Client[T any] struct {
 	ttl  time.Duration
 	data sync.Map
 	ctx  context.Context
@@ -57,7 +58,7 @@ type Client struct {
 	fs   *embed.FS
 }
 
-func (obj *Client) run() {
+func (obj *Client[T]) run() {
 	interval := time.Second * 30
 	timer := time.NewTimer(interval)
 	defer timer.Stop()
@@ -67,7 +68,7 @@ func (obj *Client) run() {
 			return
 		default:
 			obj.data.Range(func(key, value any) bool {
-				val := value.(rawData)
+				val := value.(rawData[T])
 				if val.ttl > 0 && time.Since(val.time) > val.ttl {
 					obj.data.Delete(key)
 				}
@@ -83,26 +84,26 @@ func (obj *Client) run() {
 	}
 }
 
-func (obj *Client) set(key string, data []byte, ttls ...time.Duration) {
+func (obj *Client[T]) set(key string, data T, ttls ...time.Duration) {
 	var ttl time.Duration
 	if len(ttls) > 0 {
 		ttl = ttls[0]
 	}
-	obj.data.Store(key, rawData{
+	obj.data.Store(key, rawData[T]{
 		data: data,
 		time: time.Now(),
 		ttl:  ttl,
 	})
 }
 
-func (obj *Client) get(key string) ([]byte, bool) {
+func (obj *Client[T]) get(key string) (T, bool) {
 	val, ok := obj.data.Load(key)
 	if !ok {
-		return nil, false
+		return *new(T), false
 	}
-	return val.(rawData).data, true
+	return val.(rawData[T]).data, true
 }
-func (obj *Client) Set(key string, data any, ttls ...time.Duration) error {
+func (obj *Client[T]) Set(key string, data T, ttls ...time.Duration) error {
 	key = tools.Hex(tools.Md5(key))
 	b := bytes.NewBuffer(nil)
 	err := gob.NewEncoder(b).Encode(data)
@@ -112,35 +113,60 @@ func (obj *Client) Set(key string, data any, ttls ...time.Duration) error {
 	if obj.dir != "" {
 		return os.WriteFile(tools.PathJoin(obj.dir, key), b.Bytes(), 0777)
 	} else {
-		obj.set(key, b.Bytes(), ttls...)
+		obj.set(key, data, ttls...)
 	}
 	return nil
 }
 
-func (obj *Client) Get(key string, data any) (bool, error) {
+func (obj *Client[T]) Get(key string, t T) (bool, error) {
 	key = tools.Hex(tools.Md5(key))
 	if obj.fs != nil {
 		b, err := obj.fs.ReadFile(obj.dir + "/" + key)
 		if err != nil {
-			return false, nil
+			return false, err
 		}
-
-		return true, gob.NewDecoder(bytes.NewBuffer(b)).Decode(data)
+		err = gob.NewDecoder(bytes.NewBuffer(b)).Decode(t)
+		return true, err
 	} else if obj.dir != "" {
 		b, err := os.ReadFile(tools.PathJoin(obj.dir, key))
 		if err != nil {
-			return false, nil
+			return false, err
 		}
-		return true, gob.NewDecoder(bytes.NewBuffer(b)).Decode(data)
+		err = gob.NewDecoder(bytes.NewBuffer(b)).Decode(t)
+		return true, err
 	} else {
 		b, ok := obj.get(key)
-		if ok {
-			return true, gob.NewDecoder(bytes.NewBuffer(b)).Decode(data)
+		if !ok {
+			return ok, nil
 		}
-		return false, nil
+		rv := reflect.ValueOf(t)
+		rv.Elem().Set(reflect.ValueOf(b))
+		return ok, nil
 	}
 }
-func (obj *Client) Close() {
+func (obj *Client[T]) GetRaw(key string) (T, bool, error) {
+	key = tools.Hex(tools.Md5(key))
+	var data T
+	if obj.fs != nil {
+		b, err := obj.fs.ReadFile(obj.dir + "/" + key)
+		if err != nil {
+			return data, false, err
+		}
+		err = gob.NewDecoder(bytes.NewBuffer(b)).Decode(&data)
+		return data, true, err
+	} else if obj.dir != "" {
+		b, err := os.ReadFile(tools.PathJoin(obj.dir, key))
+		if err != nil {
+			return data, false, err
+		}
+		err = gob.NewDecoder(bytes.NewBuffer(b)).Decode(&data)
+		return data, true, err
+	} else {
+		b, ok := obj.get(key)
+		return b, ok, nil
+	}
+}
+func (obj *Client[T]) Close() {
 	obj.cnl()
 	obj.data.Clear()
 }
