@@ -1,6 +1,6 @@
 module github.com/gospider007/db
 
-go 1.26.0
+go 1.27.0
 
 require github.com/gospider007/tools v0.0.0-20260818092029-81f710f25d98
 
