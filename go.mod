@@ -5,7 +5,7 @@ go 1.27.0
 require github.com/gospider007/tools v0.0.0-20260826022531-159b55a750ab
 
 require (
-	github.com/andybalholm/brotli v1.2.2 // indirect
+	github.com/andybalholm/brotli v1.2.3 // indirect
 	github.com/golang/snappy v1.0.0 // indirect
 	github.com/gospider007/kinds v0.0.0-20260824054539-a612e386b5ac // indirect
 	github.com/gospider007/re v0.0.0-20260824054539-32823144d328 // indirect
