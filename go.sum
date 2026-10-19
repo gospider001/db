@@ -6,8 +6,8 @@ github.com/gospider007/kinds v0.0.0-20260824054539-a612e386b5ac h1:lJb+JuTFlDiG/
 github.com/gospider007/kinds v0.0.0-20260824054539-a612e386b5ac/go.mod h1:75RS5JPKWcrHfr+7VCZxhdI5anNguHHGS/Y9HPWBqTw=
 github.com/gospider007/re v0.0.0-20260824054539-32823144d328 h1:2nJmbFr4WnHMy26A0GijYfAF80BNxoYEB1uKlCQV930=
 github.com/gospider007/re v0.0.0-20260824054539-32823144d328/go.mod h1:h9MD0+Vqyo+4Oy17pk9j4B9fqQPnPMFZksP3G27VV5I=
-github.com/gospider007/tools v0.0.0-20260928021832-67b261236d01 h1:I2qpdyBnK/aWSF4kPDA33gWMTHN05KYUAJ3eBbyPYqU=
-github.com/gospider007/tools v0.0.0-20260928021832-67b261236d01/go.mod h1:dVIZ1uGNj3pRHHuHW/TWyhRkCPG/PrvepEvZSIVO/RY=
+github.com/gospider007/tools v0.0.0-20261019072851-9f938a6a38a3 h1:QDRoxU3pymF2W9T5l7R32LUoKR6EX/j+DYfhQSg5ipI=
+github.com/gospider007/tools v0.0.0-20261019072851-9f938a6a38a3/go.mod h1:UWJf6rWfLS3+cE2izAQDcPKbpvLZt3hiDVQUEcU4qeQ=
 github.com/klauspost/compress v1.20.3 h1:zWNoFqq/lSuYQRim3dUXlXeA0IqwuZGicdG5ZTfY5j4=
 github.com/klauspost/compress v1.20.3/go.mod h1:LUdAzn7YLVvxLpc7y3V1m40wESHTgc1422pwwBSKYuI=
 github.com/minio/minlz v1.2.2 h1:o3YoP6f3VG0oY3Ykhx2mHrpCywsoobsFPVWslgfKcbY=
