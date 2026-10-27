@@ -2,7 +2,7 @@ module github.com/gospider007/db
 
 go 1.27.0
 
-require github.com/gospider007/tools v0.0.0-20261022083215-88a4b81abf75
+require github.com/gospider007/tools v0.0.0-20261027055816-c82755b053db
 
 require (
 	github.com/andybalholm/brotli v1.2.7 // indirect
